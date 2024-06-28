@@ -1,5 +1,5 @@
 import XCTest
-@testable import OpenAISwift
+@testable import OpenAIClient
 import OpenAPIRuntime
 import OSLog
 

@@ -4,13 +4,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "OpenAISwift",
-    platforms: [.macOS(.v11), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
+    name: "swift-openai-client",
+    platforms: [.macOS(.v11), .iOS(.v14), .tvOS(.v13), .watchOS(.v6), .visionOS(.v1)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "OpenAISwift",
-            targets: ["OpenAISwift"]),
+            name: "OpenAIClient",
+            targets: ["OpenAIClient"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-openapi-generator.git", from: "1.2.1"),
@@ -21,15 +21,15 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "OpenAISwift", dependencies: [
+            name: "OpenAIClient", dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
             ], plugins: [
                 .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator"),
             ]),
         .testTarget(
-            name: "OpenAISwiftTests",
-            dependencies: ["OpenAISwift"]),
+            name: "OpenAIClientTests",
+            dependencies: ["OpenAIClient"]),
 
     ]
 )
