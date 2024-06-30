@@ -8,12 +8,19 @@
 import Foundation
 
 public protocol ContentPayload {
-    var payload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload { get }
+    var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload { get }
 }
 
-extension String: ContentPayload {
-    public var payload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
+public protocol ChatContentPayload {
+    var chatCompletionContentPayload: Components.Schemas.ChatCompletionRequestMessageContentPart { get }
+}
+
+extension String: ContentPayload, ChatContentPayload {
+    public var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
         .MessageRequestContentTextObject(.init(_type: .text, text: self))
+    }
+    public var chatCompletionContentPayload: Components.Schemas.ChatCompletionRequestMessageContentPart {
+        .ChatCompletionRequestMessageContentPartText(.init(_type: .text, text: self))
     }
 }
 

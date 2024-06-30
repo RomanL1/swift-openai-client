@@ -11,8 +11,8 @@ final class AssistantsTests: XCTestCase {
     let api_key = ProcessInfo.processInfo.environment["OPENAI_KEY"]!
     let assistant_id = ProcessInfo.processInfo.environment["ASSISTANT_ID"]!
 
-    override func setUp() {
-        client = try! Client(key: api_key)
+    override func setUpWithError() throws {
+        client = try Client(key: api_key)
     }
 
     func testThreadRun() async throws {

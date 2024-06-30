@@ -35,7 +35,7 @@ public struct Assistant {
 
         @discardableResult
         public func addMessage(_ content: ContentPayload...) async throws -> Message {
-            let payload = content.map { $0.payload }
+            let payload = content.map { $0.createMessageContentPayload }
             let raw = try await client.createMessage(path: .init(thread_id: id), body: .json(.init(role: .user, content: .case2(payload)))).ok.body.json
             return Message(raw: raw)
         }
@@ -43,7 +43,7 @@ public struct Assistant {
         public func run() async throws -> [Message] {
             let run = try await client.createRun(path: .init(thread_id: id), body: .json(.init(assistant_id: assistant.id, stream: true))).ok.body.text_event_hyphen_stream
 
-            var messages: [Message] = []
+            var messages: [Components.Schemas.MessageObject] = []
 
             for try await event in run.asDecodedServerSentEvents() {
                 if event.data == "[DONE]" { break }
@@ -51,15 +51,16 @@ public struct Assistant {
                     let eventData = try JSONDecoder().decode(Components.Schemas.RunStreamEvent.self, from: data)
                     switch eventData {
                         case .MessageObject(let message):
+                            messages.removeAll { $0.id == message.id }
+                            messages.append(message)
                             break;
-                            messages.append(.init(raw: message))
                         default: break
                     }
 
                 }
             }
 
-            return messages
+            return messages.map { .init(raw: $0) }
         }
     }
 

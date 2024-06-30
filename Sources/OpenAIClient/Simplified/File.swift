@@ -28,13 +28,14 @@ public struct File {
     }
 
     public static func upload(_ data: Data, purpose: Purpose, using client: Client) async throws -> File {
-        let body = HTTPBody(data)
+        let fileBody = HTTPBody(data)
         let purposeBody = HTTPBody(purpose.rawValue)
 
 
         let file = try await client.createFile(body: .multipartForm([
-            .file(.init(payload: .init(body: body))),
-            .purpose(.init(payload: .init(body: purposeBody)))
+            .purpose(.init(payload: .init(body: purposeBody))),
+            .file(.init(payload: .init(body: fileBody), filename: "image.png"))
+
         ])).ok.body.json
 
         return File(id: file.id, purpose: purpose, raw: file)
@@ -42,16 +43,18 @@ public struct File {
 }
 
  extension File: ContentPayload {
-    public var payload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
+    public var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
         .MessageContentImageFileObject(.init(_type: .image_file, image_file: .init(file_id: id)))
     }
 
 }
 
-extension URL: ContentPayload {
-    public var payload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
+extension URL: ContentPayload, ChatContentPayload {
+    public var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
         .MessageContentImageUrlObject(.init(_type: .image_url, image_url: .init(url: self.absoluteString)))
     }
-    
+    public var chatCompletionContentPayload: Components.Schemas.ChatCompletionRequestMessageContentPart {
+        .ChatCompletionRequestMessageContentPartImage(.init(_type: .image_url, image_url: .init(url: self.absoluteString)))
+    }
 
 }
