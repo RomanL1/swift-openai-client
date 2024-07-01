@@ -5036,7 +5036,7 @@ paths:
 
     /threads/{thread_id}/runs/{run_id}/submit_tool_outputs:
         post:
-            operationId: submitToolOuputsToRun
+            operationId: submitToolOutputsToRun
             tags:
                 - Assistants
             summary: |
@@ -5067,6 +5067,9 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/RunObject"
+                        text/event-stream:
+                            schema:
+                                $ref: "#/components/schemas/RunStreamEvent"
             x-oaiMeta:
                 name: Submit tool outputs to run
                 group: threads
@@ -13612,7 +13615,7 @@ x-oaiMeta:
                 key: modifyRun
                 path: modifyRun
               - type: endpoint
-                key: submitToolOuputsToRun
+                key: submitToolOutputsToRun
                 path: submitToolOutputs
               - type: endpoint
                 key: cancelRun
