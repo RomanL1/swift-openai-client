@@ -66,8 +66,8 @@ public actor Assistant {
             }
         }
 
-        public func run() async throws -> [Message] {
-            var runStream: OpenAPIRuntime.HTTPBody? = try await client.createRun(path: .init(thread_id: id), body: .json(.init(assistant_id: assistant.id, stream: true))).ok.body.text_event_hyphen_stream
+        public func run(parallelToolCalls: Bool? = nil) async throws -> [Message] {
+            var runStream: OpenAPIRuntime.HTTPBody? = try await client.createRun(path: .init(thread_id: id), body: .json(.init(assistant_id: assistant.id, stream: true, parallel_tool_calls: parallelToolCalls))).ok.body.text_event_hyphen_stream
 
             var messages: [Components.Schemas.MessageObject] = []
             var calls: [String] = []
@@ -101,7 +101,7 @@ public actor Assistant {
                                             }
                                         }
                                         else {
-                                            throw OpenAIError(errorDescription: "Tool \(call.function.name) not a known function")
+                                            outputs.append(.init(tool_call_id: call.id, output: "Tool \(call.function.name) not a known function"))
                                         }
                                     }
                                     runStream = try await client.submitToolOutputsToRun(path: .init(thread_id: id, run_id: run.id), body: .json(.init(tool_outputs: outputs, stream: true))).ok.body.text_event_hyphen_stream
