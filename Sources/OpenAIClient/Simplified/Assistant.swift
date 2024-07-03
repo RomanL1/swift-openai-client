@@ -8,11 +8,29 @@
 import Foundation
 import OpenAPIRuntime
 
-public struct Assistant {
+public actor Assistant {
 
     let id: String
     let client: Client
+    private var toolHandlers: [String: ((String) async throws -> String?)] = [:]
 
+    public func setTool<Input: Decodable, Output: Encodable>(_ name: String, handler: @escaping (Input) async throws -> Output) {
+        toolHandlers[name] = {
+            let input = try JSONDecoder().decode(Input.self, from: $0.data(using: .utf8)!)
+            let output = try await handler(input)
+            let decoded = try JSONEncoder().encode(output)
+            return String(data: decoded, encoding: .utf8)!
+        }
+    }
+
+
+    public func setTool<Input: Decodable>(_ name: String, handler: @escaping (Input) async throws -> Void) {
+        toolHandlers[name] = {
+            let input = try JSONDecoder().decode(Input.self, from: $0.data(using: .utf8)!)
+            try await handler(input)
+            return nil
+        }
+    }
     public init(_ id: String, using client: Client) {
         self.id = id
         self.client = client
@@ -48,7 +66,7 @@ public struct Assistant {
             }
         }
 
-        public func run(functions: [String: ((CallArgument) throws -> Encodable)] = [:]) async throws -> [Message] {
+        public func run() async throws -> [Message] {
             var runStream: OpenAPIRuntime.HTTPBody? = try await client.createRun(path: .init(thread_id: id), body: .json(.init(assistant_id: assistant.id, stream: true))).ok.body.text_event_hyphen_stream
 
             var messages: [Components.Schemas.MessageObject] = []
@@ -73,10 +91,14 @@ public struct Assistant {
                                             continue
                                         }
                                         calls.append(call.id)
-                                        if let f = functions[call.function.name] {
-                                            let response = try f(CallArgument(input: call.function.arguments))
-                                            let encoded = String(data: try JSONEncoder().encode(response), encoding: .utf8)!
-                                            outputs.append(.init(tool_call_id: call.id, output: encoded))
+                                        if let f = await assistant.toolHandlers[call.function.name] {
+                                            do {
+                                                let response = try await f(call.function.arguments)
+                                                outputs.append(.init(tool_call_id: call.id, output: response ?? ""))
+                                            }
+                                            catch {
+                                                outputs.append(.init(tool_call_id: call.id, output: String(describing: error)))
+                                            }
                                         }
                                         else {
                                             throw OpenAIError(errorDescription: "Tool \(call.function.name) not a known function")
