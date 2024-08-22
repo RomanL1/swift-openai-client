@@ -2,7 +2,6 @@ import OpenAPIRuntime
 import Foundation
 import OpenAPIURLSession
 import HTTPTypes
-import OSLog
 
 
 internal struct AuthMiddleware: ClientMiddleware {

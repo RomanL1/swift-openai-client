@@ -9,7 +9,6 @@ import OpenAPIRuntime
 import Foundation
 import OpenAPIURLSession
 import HTTPTypes
-import OSLog
 
 public extension Client {
     init(key: String, beta: Bool = true) throws {

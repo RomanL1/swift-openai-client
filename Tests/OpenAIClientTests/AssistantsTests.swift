@@ -1,13 +1,11 @@
 import XCTest
 @testable import OpenAIClient
 import OpenAPIRuntime
-import OSLog
 
 
 final class AssistantsTests: XCTestCase {
 
     var client: Client!
-    let Log = Logger(subsystem: "Tests", category: "Assistants")
     let api_key = ProcessInfo.processInfo.environment["OPENAI_KEY"]!
     let assistant_id = ProcessInfo.processInfo.environment["ASSISTANT_ID"]!
 
@@ -33,11 +31,11 @@ final class AssistantsTests: XCTestCase {
             for content in message.content {
                 switch content {
                     case .MessageContentImageFileObject(let imageFile):
-                        Log.info("Image File: \(imageFile.image_file.file_id)")
+                        print("Image File: \(imageFile.image_file.file_id)")
                     case .MessageContentImageUrlObject(let imageUrl):
-                        Log.info("Image URL: \(imageUrl.image_url.url)")
+                        print("Image URL: \(imageUrl.image_url.url)")
                     case .MessageContentTextObject(let text):
-                        Log.info(("Text: \(text.text.value)"))
+                        print(("Text: \(text.text.value)"))
                 }
             }
         }
@@ -57,17 +55,17 @@ final class AssistantsTests: XCTestCase {
                 let eventData = try JSONDecoder().decode(Components.Schemas.RunStreamEvent.self, from: data)
                 switch eventData {
                     case .RunObject(_):
-                        Log.debug("Received RunObject")
+                        print("Received RunObject")
                     case .RunStepObject(_):
-                        Log.debug("Received RunStepObject")
+                        print("Received RunStepObject")
                     case .RunStepDeltaObject(_):
-                        Log.debug("Received RunStepDeltaObject")
+                        print("Received RunStepDeltaObject")
                     case .MessageObject(_):
-                        Log.debug("Received MessageObject")
+                        print("Received MessageObject")
                     case .MessageDeltaObject(_):
-                        Log.debug("Received MessageDeltaObject")
+                        print("Received MessageDeltaObject")
                     case .case6(_):
-                        Log.debug("Received Case6")
+                        print("Received Case6")
                 }
 
             }
