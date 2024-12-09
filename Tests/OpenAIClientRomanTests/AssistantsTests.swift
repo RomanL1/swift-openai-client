@@ -1,5 +1,5 @@
 import XCTest
-@testable import OpenAIClient
+@testable import OpenAIClientRoman
 import OpenAPIRuntime
 
 

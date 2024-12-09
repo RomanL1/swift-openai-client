@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import OpenAIClient
+@testable import OpenAIClientRoman
 
 final class WrapperTests: XCTestCase {
 
